@@ -1,4 +1,4 @@
-# Libpostal Rest Docker
+# Libpostal REST Docker
 
 libpostal (https://github.com/openvenues/libpostal) is a C library for
 parsing and normalizing street addresses. Using libpostal requires
