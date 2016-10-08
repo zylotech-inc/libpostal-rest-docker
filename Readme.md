@@ -14,4 +14,22 @@ docker build -t libpostal-rest .
 docker run -d -p 8080:8080 libpostal-rest
 ```
 
+## Build image from specific libpostal git hash
+```
+docker build -t libpostal-rest --build-arg COMMIT=e816b4f77e8c6a7f35207ca77282ffab3712c5b6 .
+```
+
+**Works with branch names as well**
+```
+docker build -t libpostal-rest --build-arg COMMIT=parser-data .
+```
+
+If a commit/hash is not specified it defaults to the **master** branch
+
+## Feature Requests and Bugs
+File a Github issue
+
+## Contributing
+Just submit a pull request :D
+
 See REST API [here](https://github.com/johnlonganecker/libpostal-rest) 
