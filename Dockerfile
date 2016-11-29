@@ -16,4 +16,6 @@ RUN ./build_libpostal.sh
 COPY ./build_libpostal_rest.sh .
 RUN ./build_libpostal_rest.sh
 
+EXPOSE 8080
+
 CMD /libpostal/workspace/bin/libpostal-rest
