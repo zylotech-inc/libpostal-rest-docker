@@ -3,7 +3,7 @@ set -e
 
 curl https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz > go1.8.1.linux-amd64.tar.gz
 
-echo "e40c36ae71756198478624ed1bb4ce17597b3c19d243f3f0899bb5740d56212a  go1.8.1.linux-amd64.tar.gz" | sha256sum -c
+echo "a579ab19d5237e263254f1eac5352efcf1d70b9dacadb6d6bb12b0911ede8994  go1.8.1.linux-amd64.tar.gz" | sha256sum -c
 
 tar xzf go1.8.1.linux-amd64.tar.gz
 
