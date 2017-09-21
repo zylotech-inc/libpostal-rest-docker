@@ -5,7 +5,7 @@ ENV COMMIT ${COMMIT:-master}
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
-    autoconf automake build-essential curl gitlibsnappy-dev libtool pkg-config
+    autoconf automake build-essential curl git libsnappy-dev libtool pkg-config
 
 RUN git clone https://github.com/openvenues/libpostal -b $COMMIT
 
