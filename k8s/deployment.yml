@@ -17,5 +17,5 @@ spec:
     spec:
       containers:
         - name: ${CIRCLE_PROJECT_REPONAME}
-              image: gcr.io/${K8S_GOOGLE_PROJECT_ID}/${CIRCLE_PROJECT_REPONAME}-api:${CIRCLE_SHA1}
+          image: gcr.io/${K8S_GOOGLE_PROJECT_ID}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_SHA1}
       restartPolicy: Always
