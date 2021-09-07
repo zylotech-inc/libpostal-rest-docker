@@ -2,17 +2,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${CIRCLE_PROJECT_REPONAME}-api
+  name: ${CIRCLE_PROJECT_REPONAME}
   labels:
-    service: ${CIRCLE_PROJECT_REPONAME}-api
+    service: ${CIRCLE_PROJECT_REPONAME}
   annotations:
     getambassador.io/config: |
       ---
       apiVersion: ambassador/v1
       kind: Mapping
-      name: ${CIRCLE_PROJECT_REPONAME}-api
+      name: ${CIRCLE_PROJECT_REPONAME}
       prefix: /libpostal/
-      service: http://${CIRCLE_PROJECT_REPONAME}-api
+      service: http://${CIRCLE_PROJECT_REPONAME}
       timeout_ms: 180000
       # the default idle_timeout_ms
       idle_timeout_ms: 300000
@@ -20,7 +20,7 @@ metadata:
 
 spec:
   selector:
-    app: ${CIRCLE_PROJECT_REPONAME}-api
+    app: ${CIRCLE_PROJECT_REPONAME}
   ports:
     - port: 80
       targetPort: 8080
