@@ -19,7 +19,7 @@ commands:
       - run: gcloud auth configure-docker
 
   # Deploy to Kubernetes Cluster
-  deploy-libpostal-api-k8s:
+  deploy-api-k8s:
     description: Deploy to k8s cluster
     parameters:
       cluster_name:
