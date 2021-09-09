@@ -25,12 +25,54 @@ docker build -t libpostal-rest --build-arg COMMIT=e816b4f77e8c6a7f35207ca77282ff
 docker build -t libpostal-rest --build-arg COMMIT=parser-data .
 ```
 
-If a commit/hash is not specified it defaults to the **master** branch
+### Parser
+**Note**: For Local Environment
 
-## Feature Requests and Bugs
-File a Github issue
+`curl -X POST -d '{"query": "100 main st buffalo ny"}' <host>:8080/parser`
 
-## Contributing
-Just submit a pull request :D
+**Note**: For Kubernetes Environment
+
+`curl -X POST -d '{"query": "100 main st buffalo ny"}' <host>/libpostal/parser`
+
+** Response **
+```
+[
+  {
+    "label": "house_number",
+    "value": "100"
+  },
+  {
+    "label": "road",
+    "value": "main st"
+  },
+  {
+    "label": "city",
+    "value": "buffalo"
+  },
+  {
+    "label": "state",
+    "value": "ny"
+  }
+]
+```
+
+### Expand
+**Note**: For Local Environment
+
+`curl -X POST -d '{"query": "100 main st buffalo ny"}' <host>:8080/expand`
+
+**Note**: For Kubernetes Environment
+
+`curl -X POST -d '{"query": "100 main st buffalo ny"}' <host>/libpostal/expand`
+
+** Response **
+```
+[
+  "100 main saint buffalo new york",
+  "100 main saint buffalo ny",
+  "100 main street buffalo new york",
+  "100 main street buffalo ny"
+]
+```
 
 See REST API [here](https://github.com/zylotech-inc/libpostal-rest) 

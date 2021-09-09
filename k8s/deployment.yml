@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${CIRCLE_PROJECT_REPONAME}
+  name: ${CIRCLE_PROJECT_REPONAME}-api
   labels:
-    app: ${CIRCLE_PROJECT_REPONAME}
+    app: ${CIRCLE_PROJECT_REPONAME}-api
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
-      app: ${CIRCLE_PROJECT_REPONAME}
+      app: ${CIRCLE_PROJECT_REPONAME}-api
   template:
     metadata:
       labels:
-        app: ${CIRCLE_PROJECT_REPONAME}
+        app: ${CIRCLE_PROJECT_REPONAME}-api
     spec:
       containers:
-        - name: ${CIRCLE_PROJECT_REPONAME}
-          image: gcr.io/${K8S_GOOGLE_PROJECT_ID}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_SHA1}
+        - name: ${CIRCLE_PROJECT_REPONAME}-api
+          image: gcr.io/${K8S_GOOGLE_PROJECT_ID}/${CIRCLE_PROJECT_REPONAME}-api:${CIRCLE_SHA1}
       restartPolicy: Always

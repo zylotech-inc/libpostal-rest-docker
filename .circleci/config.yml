@@ -19,7 +19,7 @@ commands:
       - run: gcloud auth configure-docker
 
   # Deploy to Kubernetes Cluster
-  deploy-api-k8s:
+  deploy-libpostal-api-k8s:
     description: Deploy to k8s cluster
     parameters:
       cluster_name:
@@ -43,7 +43,7 @@ commands:
       - run:
           name: kubectl rollout status
           command: |
-            kubectl rollout status deployment/${CIRCLE_PROJECT_REPONAME}
+            kubectl rollout status deployment/${CIRCLE_PROJECT_REPONAME}-api
 
   set-cluster:
     description: set the cluster to deploy to based on the env
@@ -93,18 +93,18 @@ commands:
 
 jobs:
   # Build the API Docker Image
-  build-etl-api:
+  build-libpostal-api:
     docker:
       - image: google/cloud-sdk
     steps:
       - checkout
       - gcloud-authenticate
       - build-api-docker-image:
-          project_name: ${CIRCLE_PROJECT_REPONAME}
+          project_name: ${CIRCLE_PROJECT_REPONAME}-api
           dockerfile_path: ./Dockerfile
 
   # Deploy the API Docker Image
-  deploy-etl-api:
+  deploy-libpostal-api:
     docker:
       - image: google/cloud-sdk
     steps:
@@ -120,22 +120,22 @@ jobs:
 
 workflows:
 
-  build-deploy-etl-api:
+  build-deploy-libpostal-api:
     jobs:
       # k8s is a CircleCI Context that is used build and send API's to the
       # appropiate GCP project and Cluster and is available across all projects.
       # Build will only happen on master, dev, develop or feature, pythonvirtualenvoperator branches
-      - build-etl-api:
+      - build-libpostal-api:
           context: k8s
           filters:
             branches:
               only:
                 - master
                 - /^dev(elop)?/
-      - deploy-etl-api:
+      - deploy-libpostal-api:
           context: k8s
           requires:
-            - build-etl-api
+            - build-libpostal-api
           filters:
             branches:
               only:
