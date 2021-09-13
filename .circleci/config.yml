@@ -53,13 +53,13 @@ commands:
           command: |
             case "$CIRCLE_BRANCH" in
               dev)
-                echo "export CLUSTER_NAME='${CLUSTER_NAME_DEV}'" >> "$BASH_ENV"
+                echo "export CLUSTER_NAME='${K8S_CLUSTER_NAME_DEV}'" >> "$BASH_ENV"
                 ;;
               stage)
-                echo "export CLUSTER_NAME='${CLUSTER_NAME_STAGE}'" >> "$BASH_ENV"
+                echo "export CLUSTER_NAME='${K8S_CLUSTER_NAME_STAGE}'" >> "$BASH_ENV"
                 ;;
               master)
-                echo "export CLUSTER_NAME='${CLUSTER_NAME_PROD}'" >> "$BASH_ENV"
+                echo "export CLUSTER_NAME='${K8S_CLUSTER_NAME_PROD}'" >> "$BASH_ENV"
                 ;;
               *)
                 echo "This branch cannot be deployed!" && exit 1
