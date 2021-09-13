@@ -1,0 +1,143 @@
+---
+version: 2.1
+
+orbs:
+  gcs: t3n/gcs@0.1.3
+  gcp-cli: circleci/gcp-cli@1.8.3
+  openjdk-install: cloudesire/openjdk-install@1.2.3
+
+commands:
+  # Our generic GCP Authentication Command
+  # We base64 encode the GCP KEY to prevent some weirdness in CirclCI storing string
+  # representations of JSON objects
+  gcloud-authenticate:
+    description: Authenticate docker with google cloud
+    steps:
+      - run: echo ${K8S_GCP_PROJECT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcp-key.json
+      - run: gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
+      - run: gcloud --quiet config set project ${K8S_GOOGLE_PROJECT_ID}
+      - run: gcloud auth configure-docker
+
+  # Deploy to Kubernetes Cluster
+  deploy-api-k8s:
+    description: Deploy to k8s cluster
+    parameters:
+      cluster_name:
+        type: string
+    steps:
+      - run: apt-get install -qq -y gettext
+      - run: gcloud --quiet config set compute/zone ${K8S_GOOGLE_COMPUTE_ZONE}
+      - run: gcloud --quiet container clusters get-credentials << parameters.cluster_name >>
+      - run:
+          name: insert env variables into k8s yaml configs
+          command: |
+            mkdir -p k8s-output
+            for file in $(ls k8s)
+            do
+              envsubst < ./k8s/"$file" > ./k8s-output/"$file"
+            done
+      - run:
+          name: kubectl apply
+          command: |
+            kubectl apply -f k8s-output
+      - run:
+          name: kubectl rollout status
+          command: |
+            kubectl rollout status deployment/${CIRCLE_PROJECT_REPONAME}-api
+
+  set-cluster:
+    description: set the cluster to deploy to based on the env
+    steps:
+      - run:
+          name: set the cluster to deploy
+          command: |
+            case "$CIRCLE_BRANCH" in
+              dev)
+                echo "export CLUSTER_NAME='${CLUSTER_NAME_DEV}'" >> "$BASH_ENV"
+                ;;
+              stage)
+                echo "export CLUSTER_NAME='${CLUSTER_NAME_STAGE}'" >> "$BASH_ENV"
+                ;;
+              master)
+                echo "export CLUSTER_NAME='${CLUSTER_NAME_PROD}'" >> "$BASH_ENV"
+                ;;
+              *)
+                echo "This branch cannot be deployed!" && exit 1
+                ;;
+            esac
+
+  # Build the docker Image that will live in the Kubernetes Cluster
+  # Read more about this Image in the docker/api/README.md file
+  build-api-docker-image:
+    description: Build the ID Unification API Docker Container and push to GCR
+    parameters:
+      project_name:
+        type: string
+      dockerfile_path:
+        type: string
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - add_ssh_keys:
+          fingerprints:
+            - "93:a9:f3:d3:97:84:fe:e3:a2:63:9e:fe:3f:be:6e:73"
+      - run:
+          name: Build API docker image
+          command: |
+            docker build --rm -t << parameters.project_name >> -f << parameters.dockerfile_path >> .
+            docker tag << parameters.project_name >> gcr.io/${K8S_GOOGLE_PROJECT_ID}/<< parameters.project_name >>:${CIRCLE_SHA1}
+      - run:
+          name: Push API image to GCR
+          command: |
+            docker push gcr.io/${K8S_GOOGLE_PROJECT_ID}/<< parameters.project_name >>:${CIRCLE_SHA1}
+
+jobs:
+  # Build the API Docker Image
+  build-libpostal-api:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - gcloud-authenticate
+      - build-api-docker-image:
+          project_name: ${CIRCLE_PROJECT_REPONAME}-api
+          dockerfile_path: ./Dockerfile
+
+  # Deploy the API Docker Image
+  deploy-libpostal-api:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - gcloud-authenticate
+      - set-cluster
+      - run:
+          name: The image tag to deploy
+          command: echo 'export TAG="${CIRCLE_SHA1}"' >> $BASH_ENV
+      - deploy-api-k8s:
+          cluster_name: ${CLUSTER_NAME}
+
+
+workflows:
+
+  build-deploy-libpostal-api:
+    jobs:
+      # k8s is a CircleCI Context that is used build and send API's to the
+      # appropiate GCP project and Cluster and is available across all projects.
+      # Build will only happen on master, dev, develop or feature, pythonvirtualenvoperator branches
+      - build-libpostal-api:
+          context: k8s
+          filters:
+            branches:
+              only:
+                - master
+                - /^dev(elop)?/
+      - deploy-libpostal-api:
+          context: k8s
+          requires:
+            - build-libpostal-api
+          filters:
+            branches:
+              only:
+                - master
+                - /^dev(elop)?/
