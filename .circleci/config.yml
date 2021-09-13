@@ -132,6 +132,7 @@ workflows:
               only:
                 - master
                 - /^dev(elop)?/
+                - Dev
       - deploy-libpostal-api:
           context: k8s
           requires:
@@ -141,3 +142,4 @@ workflows:
               only:
                 - master
                 - /^dev(elop)?/
+                - Dev
