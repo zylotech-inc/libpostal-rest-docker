@@ -84,7 +84,7 @@ commands:
       - run:
           name: Build API docker image
           command: |
-            docker build --rm -t << parameters.project_name >> -f << parameters.dockerfile_path >> .
+            docker build --rm --no-cache -t << parameters.project_name >> -f << parameters.dockerfile_path >> .
             docker tag << parameters.project_name >> gcr.io/${K8S_GOOGLE_PROJECT_ID}/<< parameters.project_name >>:${CIRCLE_SHA1}
       - run:
           name: Push API image to GCR
